@@ -19,8 +19,8 @@ function testConnection(pool, label) {
    MAIN DB (PGDATABASEMAIN)
 ============================================ */
 const connectDB = () => {
-  if (!poolmain) {
-    poolmain = new Pool({
+  if (!pool) {
+    pool = new Pool({
       host: process.env.PGHOST,
       database: process.env.PGDATABASEMAIN,
       user: process.env.PGUSER,
@@ -32,9 +32,9 @@ const connectDB = () => {
       keepAlive: true,
     });
 
-    testConnection(poolmain, "serverpe-plantgang DB");
+    testConnection(pool, "serverpe-plantgang DB");
   }
-  return poolmain;
+  return pool;
 };
 
 module.exports = { connectDB };
