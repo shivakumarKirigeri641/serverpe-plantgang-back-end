@@ -1,19 +1,20 @@
 const express = require("express");
-const validateSendOtp = require("../../../../../Data/Projects/serverpe-back-end/serverpe-back-end/src/validations/main/validateSendOtp");
-const validateforverifyotp = require("../../../../../Data/Projects/serverpe-back-end/serverpe-back-end/src/validations/main/validateverifyOtp");
 const insertOtpEntry = require("../repos/insertOtpEntry");
+const verifyOtpEntry = require("../repos/verifyOtpEntry");
+const validateverifyOtp = require("../validations/validateverifyOtp");
+const validatesendOtp = require("../validations/validatesendOtp");
+const generateToken = require("../utils/generateToken");
 const generalRouter = express.Router();
 
 generalRouter.post("/plantgangs/user/send-otp", async (req, res) => {
   try {
-    let validationresult = validateSendOtp(req);
+    let validationresult = validatesendOtp(req);
 
     if (validationresult.successstatus) {
       const otp = "1234"; // static for now
       //const result_otp = generateOtp();
       validationresult = await insertOtpEntry(req.body.mobile_number, otp);
     }
-
     return res.status(validationresult.statuscode).json(validationresult);
   } catch (err) {
     console.error(err);
@@ -35,13 +36,14 @@ generalRouter.post("/plantgangs/user/verify-otp", async (req, res) => {
         req.headers["x-forwarded-for"].split(",")[0]) ||
       req.socket?.remoteAddress ||
       null;
-    let validateforverifyotpresult = validateforverifyotp(req.body);
+    const user_agent = req.headers["user-agent"];
+    let validateforverifyotpresult = validateverifyOtp(req);
     if (validateforverifyotpresult.successstatus) {
-      validateforverifyotpresult = await validateotp(
-        poolMain,
+      validateforverifyotpresult = await verifyOtpEntry(
         req.body.mobile_number,
         req.body.otp,
         ipAddress,
+        user_agent,
       );
       if (validateforverifyotpresult.successstatus) {
         const token = generateToken(req.body.mobile_number);

@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const { connectDB } = require("./database/connectDB");
+const generalRouter = require("./routers/generalRouter");
+const userRouter = require("./routers/userRouter");
 const PORT = process.env.PORT || 8888;
 const app = express();
 
@@ -54,6 +56,8 @@ app.get("/", (req, res) => {
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 /* Routes */
+app.use("/", generalRouter);
+app.use("/", userRouter);
 /* DB connections */
 connectDB();
 

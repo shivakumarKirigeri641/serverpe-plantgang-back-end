@@ -27,12 +27,13 @@ const validateverifyOtp = (req) => {
       message: "otp not found!",
     };
   }
-  if (!/^\d{4}$/.test(req.body.mobile_number)) {
+  if (!/^\d{4}$/.test(req.body.otp)) {
     return {
       statuscode: 400,
       successstatus: false,
       message: "otp must be exactly 4 digits!",
     };
   }
+  return { statuscode: 200, successstatus: true, message: "success" };
 };
 module.exports = validateverifyOtp;

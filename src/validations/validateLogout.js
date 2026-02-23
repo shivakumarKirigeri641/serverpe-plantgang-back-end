@@ -1,19 +1,12 @@
-const validatesendOtp = (req) => {
-  if (!req.body) {
-    return {
-      statuscode: 404,
-      successstatus: false,
-      message: "request body not found!",
-    };
-  }
-  if (!req.body.mobile_number) {
+const validateLogout = (req) => {
+  if (!req.mobile_number) {
     return {
       statuscode: 404,
       successstatus: false,
       message: "Mobile number not found!",
     };
   }
-  if (!/^\d{10}$/.test(req.body.mobile_number)) {
+  if (!/^\d{10}$/.test(req.mobile_number)) {
     return {
       statuscode: 400,
       successstatus: false,
@@ -22,4 +15,4 @@ const validatesendOtp = (req) => {
   }
   return { statuscode: 200, successstatus: true, message: "success" };
 };
-module.exports = validatesendOtp;
+module.exports = validateLogout;
