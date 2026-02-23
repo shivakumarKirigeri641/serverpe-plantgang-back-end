@@ -62,7 +62,7 @@ LIMIT 2;`,
       return {
         statuscode: 401,
         successstatus: true,
-        message: "OTP expired or unauthorized user.",
+        message: "OTP expired or Invalid OTP!",
         data: {},
       };
     }
