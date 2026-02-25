@@ -48,25 +48,9 @@ SELECT
     p.is_active,
     p.is_featured,
     p.is_available,
-    p.nursery_price,
 
     n.id AS nursery_id,
     n.nursery_name,
-    n.mobile_number AS nursery_mobile_number,
-    n.pincode AS nursery_pincode,
-    n.is_active AS nursery_is_active,
-    n.user_id AS nursery_userid,
-    n.open_time,
-    n.close_time,
-    n.shop_sun,
-    n.shop_mon,
-    n.shop_tue,
-    n.shop_wed,
-    n.shop_thu,
-    n.shop_fri,
-    n.shop_sat,
-    n.latitude AS nursery_lat,
-    n.longitude AS nursery_long,
 
     m.maintenance_name,
     m.description AS maintenance_description,
@@ -84,7 +68,7 @@ LEFT JOIN (
     SELECT 
         pi.product_id,
         json_agg(
-            '/uploads/images/products/' 
+            'https://plantsgangapi.serverpe.in/uploads/images/products/' 
             || pi.product_id 
             || '/' 
             || pi.image_name

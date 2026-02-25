@@ -9,7 +9,8 @@ const generalRouter = require("./routers/generalRouter");
 const userRouter = require("./routers/userRouter");
 const PORT = process.env.PORT || 8888;
 const app = express();
-
+// ✅ STATIC FOLDER (PUT HERE)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 /* 🔐 MUST be before CORS & cookies */
 //app.set("trust proxy", 1);
 
