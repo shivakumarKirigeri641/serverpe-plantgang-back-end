@@ -12,7 +12,7 @@ const app = express();
 // ✅ STATIC FOLDER (PUT HERE)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 /* 🔐 MUST be before CORS & cookies */
-//app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 /* Measure latency */
 app.use((req, res, next) => {
@@ -30,8 +30,6 @@ app.use(express.json());
   cors({
     origin: [
       "https://serverpe.in",
-      "https://admin.serverpe.in",
-      "https://carspecs.serverpe.in",
     ],
     credentials: true,
   })
