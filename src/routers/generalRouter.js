@@ -4,8 +4,12 @@ const verifyOtpEntry = require("../repos/verifyOtpEntry");
 const validateverifyOtp = require("../validations/validateverifyOtp");
 const validatesendOtp = require("../validations/validatesendOtp");
 const generateToken = require("../utils/generateToken");
+const getAllPlants = require("../repos/getAllPlants");
 const generalRouter = express.Router();
 
+// ======================================================
+//                SEND OTP
+// ======================================================
 generalRouter.post("/plantgangs/user/send-otp", async (req, res) => {
   try {
     let validationresult = validatesendOtp(req);
@@ -70,6 +74,30 @@ generalRouter.post("/plantgangs/user/verify-otp", async (req, res) => {
     return res.status(500).json({
       poweredby: "plantsgang.serverpe.in",
       mock_data: true,
+      error: "Internal Server Error",
+      message: err.message,
+    });
+  } finally {
+  }
+});
+// ======================================================
+//                ALL-PLANTS
+// ======================================================
+generalRouter.get("/plantgangs/user/products", async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 10, 1),
+      100,
+    );
+    let validationresult_plantcategories = await getAllPlants(page, limit);
+    return res
+      .status(validationresult_plantcategories.statuscode)
+      .json(validationresult_plantcategories);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      poweredby: "plantsgang.serverpe.in",
       error: "Internal Server Error",
       message: err.message,
     });
