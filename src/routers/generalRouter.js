@@ -10,6 +10,7 @@ const getAllPlants = require("../repos/getAllPlants");
 const getCart = require("../repos/getCart");
 const addToCart = require("../repos/addToCart");
 const removeFromCart = require("../repos/removeFromCart");
+const getMaintenanceTypes = require("../repos/getMaintenanceTypes");
 const generalRouter = express.Router();
 
 // ======================================================
@@ -188,6 +189,25 @@ generalRouter.post("/plantgangs/user/remove-from-cart", async (req, res) => {
     return res
       .status(validateaddtocart_result.statuscode)
       .json(validateaddtocart_result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      poweredby: "plantsgang.serverpe.in",
+      error: "Internal Server Error",
+      message: err.message,
+    });
+  } finally {
+  }
+});
+// ======================================================
+//                MAINTENANCE-TYPES
+// ======================================================
+generalRouter.get("/plantgangs/user/maintenance-types", async (req, res) => {
+  try {
+    let validationresult_plantcategories = await getMaintenanceTypes();
+    return res
+      .status(validationresult_plantcategories.statuscode)
+      .json(validationresult_plantcategories);
   } catch (err) {
     console.error(err);
     return res.status(500).json({
