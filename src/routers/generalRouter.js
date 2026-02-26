@@ -7,6 +7,7 @@ const validateForAddToCart = require("../validations/validateForAddToCart");
 const generateToken = require("../utils/generateToken");
 const getAllPlants = require("../repos/getAllPlants");
 const getCart = require("../repos/getCart");
+const addToCart = require("../repos/addToCart");
 const generalRouter = express.Router();
 
 // ======================================================
@@ -136,13 +137,13 @@ generalRouter.post("/plantgangs/user/add-to-cart", async (req, res) => {
   try {
     //id of plant, ipaddress, user_agent
     let validateaddtocart_result = validateForAddToCart(req);
-    const ipAddress =
-      (req.headers["x-forwarded-for"] &&
-        req.headers["x-forwarded-for"].split(",")[0]) ||
-      req.socket?.remoteAddress ||
-      null;
-    const user_agent = req.headers["user-agent"];
     if (validateaddtocart_result.successstatus) {
+      const ipAddress =
+        (req.headers["x-forwarded-for"] &&
+          req.headers["x-forwarded-for"].split(",")[0]) ||
+        req.socket?.remoteAddress ||
+        null;
+      const user_agent = req.headers["user-agent"];
       validateaddtocart_result = await addToCart(
         req.body.product_id,
         ipAddress,
