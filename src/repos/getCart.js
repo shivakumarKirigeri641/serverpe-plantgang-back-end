@@ -2,7 +2,7 @@ const { connectDB } = require("../database/connectDB");
 const pool = connectDB();
 const getCart = async (ipAddress, user_agent) => {
   try {
-    const result_pants_details = await pool.query(
+    const result_plants_details = await pool.query(
       `
         WITH paginated_products AS (
     SELECT p.*
@@ -72,13 +72,13 @@ ORDER BY cate.category_name, sub.sub_category_name, p.product_name;`,
     const total_amount_details = {};
     let amount = 0;
     let plants = 0;
-    if (0 < result_pants_details.rows.length) {
-      for (let i = 0; i < result_pants_details.rows.length; i++) {
+    if (0 < result_plants_details.rows.length) {
+      for (let i = 0; i < result_plants_details.rows.length; i++) {
         plants++;
         amount =
           amount +
-          result_pants_details.rows[i].quantity *
-            result_pants_details.rows[i].base_price;
+          result_plants_details.rows[i].quantity *
+            result_plants_details.rows[i].base_price;
       }
     }
     return {
@@ -86,7 +86,7 @@ ORDER BY cate.category_name, sub.sub_category_name, p.product_name;`,
       successstatus: true,
       message: "Cart details fetch successfull.",
       data: {
-        result_pants_details: result_pants_details.rows,
+        result_plants_details: result_plants_details.rows,
         total_amount_details: { toatl_amount: amount, plant_count: plants },
       },
     };

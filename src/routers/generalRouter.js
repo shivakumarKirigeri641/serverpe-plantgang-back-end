@@ -4,10 +4,12 @@ const verifyOtpEntry = require("../repos/verifyOtpEntry");
 const validateverifyOtp = require("../validations/validateverifyOtp");
 const validatesendOtp = require("../validations/validatesendOtp");
 const validateForAddToCart = require("../validations/validateForAddToCart");
+const validateForRemoveFromCart = require("../validations/validateForRemoveFromCart");
 const generateToken = require("../utils/generateToken");
 const getAllPlants = require("../repos/getAllPlants");
 const getCart = require("../repos/getCart");
 const addToCart = require("../repos/addToCart");
+const removeFromCart = require("../repos/removeFromCart");
 const generalRouter = express.Router();
 
 // ======================================================
@@ -145,6 +147,39 @@ generalRouter.post("/plantgangs/user/add-to-cart", async (req, res) => {
         null;
       const user_agent = req.headers["user-agent"];
       validateaddtocart_result = await addToCart(
+        req.body.product_id,
+        ipAddress,
+        user_agent,
+      );
+    }
+    return res
+      .status(validateaddtocart_result.statuscode)
+      .json(validateaddtocart_result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      poweredby: "plantsgang.serverpe.in",
+      error: "Internal Server Error",
+      message: err.message,
+    });
+  } finally {
+  }
+});
+// ======================================================
+//                REMOVE-FROM-CART
+// ======================================================
+generalRouter.post("/plantgangs/user/remove-from-cart", async (req, res) => {
+  try {
+    //id of plant, ipaddress, user_agent
+    let validateaddtocart_result = validateForRemoveFromCart(req);
+    if (validateaddtocart_result.successstatus) {
+      const ipAddress =
+        (req.headers["x-forwarded-for"] &&
+          req.headers["x-forwarded-for"].split(",")[0]) ||
+        req.socket?.remoteAddress ||
+        null;
+      const user_agent = req.headers["user-agent"];
+      validateaddtocart_result = await removeFromCart(
         req.body.product_id,
         ipAddress,
         user_agent,

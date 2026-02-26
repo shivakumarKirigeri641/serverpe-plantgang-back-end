@@ -1,3 +1,6 @@
+const { connectDB } = require("../database/connectDB");
+const getCart = require("./getCart");
+const pool = connectDB();
 const removeFromCart = async (product_id, ipAddress, user_agent) => {
   try {
     let result_updated_product_in_cart = [];
@@ -50,7 +53,10 @@ const removeFromCart = async (product_id, ipAddress, user_agent) => {
       message: "Updated cart successfull.",
       data: {
         result_updated_cartlist: result_updated_cart.data,
-        udpated_cart_details: result_updated_product_in_cart.rows[0],
+        udpated_cart_details:
+          0 === result_updated_product_in_cart?.length
+            ? []
+            : result_updated_product_in_cart.rows[0],
       },
     };
   } catch (err) {
