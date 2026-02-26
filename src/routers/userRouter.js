@@ -37,5 +37,25 @@ userRouter.post(
     }
   },
 );
-
+// ======================================================
+//                CART-LOGGED-USER
+// ======================================================
+userRouter.get(
+  "/plantgangs/user/cart-logged-user",
+  checkServerPeUser,
+  async (req, res) => {
+    try {
+      let cart_details = await getCart(page, limit);
+      return res.status(cart_details.statuscode).json(cart_details);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        poweredby: "plantsgang.serverpe.in",
+        error: "Internal Server Error",
+        message: err.message,
+      });
+    } finally {
+    }
+  },
+);
 module.exports = userRouter;
