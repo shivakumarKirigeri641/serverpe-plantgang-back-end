@@ -8,6 +8,7 @@ const validateForRemoveFromCart = require("../validations/validateForRemoveFromC
 const generateToken = require("../utils/generateToken");
 const getAllPlants = require("../repos/getAllPlants");
 const getCart = require("../repos/getCart");
+const clearCart = require("../repos/clearCart");
 const addToCart = require("../repos/addToCart");
 const removeFromCart = require("../repos/removeFromCart");
 const getMaintenanceTypes = require("../repos/getMaintenanceTypes");
@@ -208,6 +209,31 @@ generalRouter.get("/plantgangs/user/maintenance-types", async (req, res) => {
     return res
       .status(validationresult_plantcategories.statuscode)
       .json(validationresult_plantcategories);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      poweredby: "plantsgang.serverpe.in",
+      error: "Internal Server Error",
+      message: err.message,
+    });
+  } finally {
+  }
+});
+// ======================================================
+//                CLEAR-CART
+// ======================================================
+generalRouter.post("/plantgangs/user/clear-cart", async (req, res) => {
+  try {
+    const ipAddress =
+      (req.headers["x-forwarded-for"] &&
+        req.headers["x-forwarded-for"].split(",")[0]) ||
+      req.socket?.remoteAddress ||
+      null;
+    const user_agent = req.headers["user-agent"];
+    validateaddtocart_result = await clearCart(ipAddress, user_agent);
+    return res
+      .status(validateaddtocart_result.statuscode)
+      .json(validateaddtocart_result);
   } catch (err) {
     console.error(err);
     return res.status(500).json({
