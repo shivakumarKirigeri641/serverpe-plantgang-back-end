@@ -68,7 +68,7 @@ LEFT JOIN (
     SELECT 
         pi.product_id,
         json_agg(
-            'https://plantsgangapi.serverpe.in/uploads/images/products/' 
+            'https://plantgangapi.serverpe.in/uploads/images/products/' 
             || pi.product_id 
             || '/' 
             || pi.image_name

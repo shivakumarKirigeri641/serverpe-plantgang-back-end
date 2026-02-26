@@ -1,0 +1,642 @@
+openapi: 3.0.3
+info:
+  title: ServerPe PlantGang API
+  description: Back-end API for the PlantGang online plant-selling portal by ServerPe.
+  version: 1.0.0
+  contact:
+    name: Shivakumar Kirigeri
+    url: https://github.com/shivakumarKirigeri641/serverpe-plantgang-back-end
+
+servers:
+  - url: http://localhost:8888
+    description: Local development server
+  - url: https://plantsgangapi.serverpe.in
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health-check endpoint
+  - name: Auth
+    description: OTP-based authentication
+  - name: Products
+    description: Browse plant products
+  - name: Cart
+    description: Shopping cart operations (guest)
+  - name: Cart (Logged-in)
+    description: Shopping cart for authenticated users
+  - name: Maintenance
+    description: Maintenance type lookup
+
+paths:
+  /:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Returns API health status.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  service:
+                    type: string
+                    example: serverpe-plantgang API
+                  message:
+                    type: string
+                    example: "API is running successfully 🚀"
+
+  /plantgangs/user/send-otp:
+    post:
+      tags: [Auth]
+      summary: Send OTP
+      description: Sends a one-time password to the given 10-digit mobile number.
+      operationId: sendOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOtpRequest"
+      responses:
+        "200":
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Validation error (e.g. mobile number not 10 digits)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "404":
+          description: Missing required field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/verify-otp:
+    post:
+      tags: [Auth]
+      summary: Verify OTP
+      description: >
+        Verifies the OTP for the given mobile number. On success a JWT cookie
+        named `token` is set (httpOnly, 10 min TTL).
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpRequest"
+      responses:
+        "200":
+          description: OTP verified – JWT cookie set
+          headers:
+            Set-Cookie:
+              description: JWT auth cookie
+              schema:
+                type: string
+                example: token=eyJhbGciOi...; Path=/; HttpOnly; SameSite=Lax; Max-Age=600
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "404":
+          description: Missing required field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/products:
+    get:
+      tags: [Products]
+      summary: Get all plants
+      description: Returns a paginated list of active plant products.
+      operationId: getAllPlants
+      parameters:
+        - name: page
+          in: query
+          description: Page number (minimum 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page (1–100)
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated plant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Plant categories fetched successfully.
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PlantProduct"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/cart:
+    get:
+      tags: [Cart]
+      summary: Get cart (guest)
+      description: >
+        Returns cart items for the current visitor identified by IP address and
+        User-Agent header.
+      operationId: getCart
+      responses:
+        "200":
+          description: Cart details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Cart details fetch successfull.
+                  data:
+                    type: object
+                    properties:
+                      result_plants_details:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CartItem"
+                      total_amount_details:
+                        $ref: "#/components/schemas/CartTotals"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/add-to-cart:
+    post:
+      tags: [Cart]
+      summary: Add to cart
+      description: >
+        Adds a product to the guest cart (identified by IP + User-Agent).
+        If the product already exists in the cart, its quantity is incremented.
+      operationId: addToCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartProductRequest"
+      responses:
+        "200":
+          description: Product added / quantity incremented
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Updated cart successfull.
+                  data:
+                    type: object
+                    properties:
+                      result_updated_cartlist:
+                        type: object
+                        description: Full updated cart data
+                      udpated_cart_details:
+                        type: object
+                        description: The specific cart row that was inserted/updated
+        "404":
+          description: Product not found or missing field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/remove-from-cart:
+    post:
+      tags: [Cart]
+      summary: Remove from cart
+      description: >
+        Decrements the quantity of a product in the guest cart.
+        If quantity reaches 0 the item is deleted.
+      operationId: removeFromCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartProductRequest"
+      responses:
+        "200":
+          description: Cart updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Updated cart successfull.
+                  data:
+                    type: object
+                    properties:
+                      result_updated_cartlist:
+                        type: object
+                        description: Full updated cart data
+                      udpated_cart_details:
+                        type: object
+                        description: The specific cart row that was updated (or empty array if deleted)
+        "404":
+          description: Product not found / not in cart / missing field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/maintenance-types:
+    get:
+      tags: [Maintenance]
+      summary: Get maintenance types
+      description: Returns all plant maintenance types sorted alphabetically.
+      operationId: getMaintenanceTypes
+      responses:
+        "200":
+          description: List of maintenance types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Maintenance types list fetched successfully.
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MaintenanceType"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      description: >
+        Logs the user out by clearing the JWT cookie. Requires a valid
+        `token` cookie (set by verify-otp).
+      operationId: logout
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  poweredby:
+                    type: string
+                    example: plantsgang.serverpe.in
+                  successstatus:
+                    type: boolean
+                    example: true
+                  statuscode:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Logged out successfully
+        "401":
+          description: Unauthorized – token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plantgangs/user/cart-logged-user:
+    get:
+      tags: [Cart (Logged-in)]
+      summary: Get cart (logged-in user)
+      description: >
+        Returns cart details for the authenticated user.
+        Requires a valid `token` cookie.
+      operationId: getCartLoggedUser
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Cart details for the logged-in user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                    example: 200
+                  successstatus:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+        "401":
+          description: Unauthorized – token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: JWT token set by the verify-otp endpoint
+
+  schemas:
+    SendOtpRequest:
+      type: object
+      required: [mobile_number]
+      properties:
+        mobile_number:
+          type: string
+          pattern: '^\d{10}$'
+          example: "9876543210"
+          description: 10-digit mobile number
+
+    VerifyOtpRequest:
+      type: object
+      required: [mobile_number, otp]
+      properties:
+        mobile_number:
+          type: string
+          pattern: '^\d{10}$'
+          example: "9876543210"
+          description: 10-digit mobile number
+        otp:
+          type: string
+          pattern: '^\d{4}$'
+          example: "1234"
+          description: 4-digit OTP
+
+    CartProductRequest:
+      type: object
+      required: [product_id]
+      properties:
+        product_id:
+          type: integer
+          example: 1
+          description: ID of the product
+
+    ApiResponse:
+      type: object
+      properties:
+        statuscode:
+          type: integer
+        successstatus:
+          type: boolean
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        poweredby:
+          type: string
+          example: plantsgang.serverpe.in
+        error:
+          type: string
+          example: Internal Server Error
+        message:
+          type: string
+
+    UnauthorizedResponse:
+      type: object
+      properties:
+        poweredby:
+          type: string
+          example: serverpe.in
+        mock_data:
+          type: boolean
+          example: true
+        status:
+          type: string
+          example: Failed
+        successstatus:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Token not found!
+
+    PlantProduct:
+      type: object
+      properties:
+        category_id:
+          type: integer
+        category_name:
+          type: string
+        category_description:
+          type: string
+        sub_id:
+          type: integer
+        sub_category_name:
+          type: string
+        subcategory_description:
+          type: string
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        slug:
+          type: string
+        base_price:
+          type: number
+        comparable_price:
+          type: number
+        product_description:
+          type: string
+        average_rating:
+          type: number
+        total_ratings:
+          type: integer
+        is_active:
+          type: boolean
+        is_featured:
+          type: boolean
+        is_available:
+          type: boolean
+        nursery_id:
+          type: integer
+        nursery_name:
+          type: string
+        maintenance_name:
+          type: string
+        maintenance_description:
+          type: string
+        product_images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    CartItem:
+      allOf:
+        - $ref: "#/components/schemas/PlantProduct"
+        - type: object
+          properties:
+            cart_id:
+              type: integer
+            fkuser_profile:
+              type: integer
+              nullable: true
+            ip_address:
+              type: string
+            user_agent:
+              type: string
+            quantity:
+              type: integer
+
+    CartTotals:
+      type: object
+      properties:
+        toatl_amount:
+          type: number
+          description: Total cart amount
+        plant_count:
+          type: integer
+          description: Number of distinct plants in cart
+
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+        limit:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPreviousPage:
+          type: boolean
+
+    MaintenanceType:
+      type: object
+      properties:
+        id:
+          type: integer
+        maintenance_name:
+          type: string
+        description:
+          type: string

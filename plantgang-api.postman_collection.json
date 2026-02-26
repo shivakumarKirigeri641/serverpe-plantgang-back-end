@@ -1,0 +1,426 @@
+{
+  "info": {
+    "name": "ServerPe PlantGang API",
+    "description": "Back-end API for the PlantGang online plant-selling portal by ServerPe.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8888",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns API health status."
+          },
+          "response": [
+            {
+              "name": "200 – OK",
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"OK\",\n  \"service\": \"serverpe-plantgang API\",\n  \"message\": \"API is running successfully 🚀\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile_number\": \"9876543210\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "send-otp"]
+            },
+            "description": "Sends a one-time password to the given 10-digit mobile number."
+          },
+          "response": [
+            {
+              "name": "200 – OTP Sent",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"mobile_number\": \"9876543210\"\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/send-otp", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "send-otp"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"OTP sent successfully.\"\n}"
+            },
+            {
+              "name": "400 – Invalid mobile number",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"mobile_number\": \"123\"\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/send-otp", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "send-otp"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 400,\n  \"successstatus\": false,\n  \"message\": \"Mobile number must be exactly 10 digits!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile_number\": \"9876543210\",\n  \"otp\": \"1234\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "verify-otp"]
+            },
+            "description": "Verifies the OTP for the given mobile number. On success a JWT cookie named `token` is set (httpOnly, 10 min TTL)."
+          },
+          "response": [
+            {
+              "name": "200 – Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"mobile_number\": \"9876543210\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/verify-otp", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "verify-otp"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" },
+                { "key": "Set-Cookie", "value": "token=eyJhbGciOi...; Path=/; HttpOnly; SameSite=Lax; Max-Age=600" }
+              ],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"OTP verified successfully.\"\n}"
+            },
+            {
+              "name": "400 – Invalid OTP format",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"mobile_number\": \"9876543210\",\n  \"otp\": \"12\"\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/verify-otp", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "verify-otp"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 400,\n  \"successstatus\": false,\n  \"message\": \"otp must be exactly 4 digits!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "logout"]
+            },
+            "description": "Logs the user out by clearing the JWT cookie. Requires a valid `token` cookie (set by verify-otp)."
+          },
+          "response": [
+            {
+              "name": "200 – Logged out",
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/logout", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "logout"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"poweredby\": \"plantsgang.serverpe.in\",\n  \"successstatus\": true,\n  \"statuscode\": 200,\n  \"message\": \"Logged out successfully\"\n}"
+            },
+            {
+              "name": "401 – Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/logout", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "logout"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"poweredby\": \"serverpe.in\",\n  \"mock_data\": true,\n  \"status\": \"Failed\",\n  \"successstatus\": false,\n  \"message\": \"Token not found!\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Plants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/products?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "products"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (min 1)" },
+                { "key": "limit", "value": "10", "description": "Items per page (1–100)" }
+              ]
+            },
+            "description": "Returns a paginated list of active plant products."
+          },
+          "response": [
+            {
+              "name": "200 – Plant list",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/plantgangs/user/products?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["plantgangs", "user", "products"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "10" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Plant categories fetched successfully.\",\n  \"data\": [],\n  \"pagination\": {\n    \"currentPage\": 1,\n    \"limit\": 10,\n    \"totalItems\": 0,\n    \"totalPages\": 0,\n    \"hasNextPage\": false,\n    \"hasPreviousPage\": false\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart (Guest)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "cart"]
+            },
+            "description": "Returns cart items for the current visitor identified by IP address and User-Agent header."
+          },
+          "response": [
+            {
+              "name": "200 – Cart details",
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/cart", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "cart"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Cart details fetch successfull.\",\n  \"data\": {\n    \"result_plants_details\": [],\n    \"total_amount_details\": {\n      \"toatl_amount\": 0,\n      \"plant_count\": 0\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/add-to-cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "add-to-cart"]
+            },
+            "description": "Adds a product to the guest cart. If the product already exists, its quantity is incremented."
+          },
+          "response": [
+            {
+              "name": "200 – Added",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"product_id\": 1\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/add-to-cart", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "add-to-cart"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Updated cart successfull.\",\n  \"data\": {\n    \"result_updated_cartlist\": {},\n    \"udpated_cart_details\": {}\n  }\n}"
+            },
+            {
+              "name": "404 – Product not found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"product_id\": 99999\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/add-to-cart", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "add-to-cart"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 404,\n  \"successstatus\": false,\n  \"message\": \"Product with id:99999 not found or Invalid!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/remove-from-cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "remove-from-cart"]
+            },
+            "description": "Decrements the quantity of a product in the guest cart. If quantity reaches 0 the item is deleted."
+          },
+          "response": [
+            {
+              "name": "200 – Removed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"product_id\": 1\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/remove-from-cart", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "remove-from-cart"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Updated cart successfull.\",\n  \"data\": {\n    \"result_updated_cartlist\": {},\n    \"udpated_cart_details\": {}\n  }\n}"
+            },
+            {
+              "name": "404 – Not in cart",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"product_id\": 99999\n}" },
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/remove-from-cart", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "remove-from-cart"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 404,\n  \"successstatus\": false,\n  \"message\": \"Product with id:99999 not found in cart!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Cart (Logged-in User)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/cart-logged-user",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "cart-logged-user"]
+            },
+            "description": "Returns cart details for the authenticated user. Requires a valid `token` cookie."
+          },
+          "response": [
+            {
+              "name": "200 – Cart",
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/cart-logged-user", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "cart-logged-user"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Cart fetched.\",\n  \"data\": {}\n}"
+            },
+            {
+              "name": "401 – Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/cart-logged-user", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "cart-logged-user"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"poweredby\": \"serverpe.in\",\n  \"mock_data\": true,\n  \"status\": \"Failed\",\n  \"successstatus\": false,\n  \"message\": \"Token not found!\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "item": [
+        {
+          "name": "Get Maintenance Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/plantgangs/user/maintenance-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["plantgangs", "user", "maintenance-types"]
+            },
+            "description": "Returns all plant maintenance types sorted alphabetically."
+          },
+          "response": [
+            {
+              "name": "200 – Maintenance types",
+              "originalRequest": {
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/plantgangs/user/maintenance-types", "host": ["{{baseUrl}}"], "path": ["plantgangs", "user", "maintenance-types"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statuscode\": 200,\n  \"successstatus\": true,\n  \"message\": \"Maintenance types list fetched successfully.\",\n  \"data\": []\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
