@@ -23,7 +23,7 @@ const removeFromCart = async (
     }
     //now check if product_id is already exists in cart
     const result_cart_details = await pool.query(
-      `select id, quantity from cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
+      `select id, quantity from user_cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
       [product_id, ipAddress, user_agent],
     );
     if (0 === result_cart_details.rows.length) {
@@ -39,12 +39,12 @@ const removeFromCart = async (
       true === is_full_product
     ) {
       await pool.query(
-        `delete from cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
+        `delete from user_cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
         [product_id, ipAddress, user_agent],
       );
     } else {
       result_updated_product_in_cart = await pool.query(
-        `update cart set quantity= $1 where fkproducts=$2 and ip_address=$3 and user_agent=$4 returning *`,
+        `update user_cart set quantity= $1 where fkproducts=$2 and ip_address=$3 and user_agent=$4 returning *`,
         [
           result_cart_details.rows[0].quantity - 1,
           product_id,

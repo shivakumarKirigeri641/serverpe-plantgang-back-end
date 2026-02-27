@@ -19,19 +19,19 @@ const addToCart = async (product_id, ipAddress, user_agent) => {
     }
     //now check if product_id is already exists in cart
     const result_cart_details = await pool.query(
-      `select id, quantity from cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
+      `select id, quantity from user_cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
       [product_id, ipAddress, user_agent],
     );
     if (0 === result_cart_details.rows.length) {
       //if insert the product_id
       result_updated_product_in_cart = await pool.query(
-        `insert into cart (fkproducts, ip_address, user_agent, quantity) values ($1, $2, $3, $4) returning *`,
+        `insert into user_cart (fkproducts, ip_address, user_agent, quantity) values ($1, $2, $3, $4) returning *`,
         [product_id, ipAddress, user_agent, 1],
       );
     } else {
       //if exists, increment the quantity
       result_updated_product_in_cart = await pool.query(
-        `update cart set quantity= $1 where fkproducts=$2 and ip_address=$3 and user_agent=$4 returning *`,
+        `update user_cart set quantity= $1 where fkproducts=$2 and ip_address=$3 and user_agent=$4 returning *`,
         [
           result_cart_details.rows[0].quantity + 1,
           product_id,

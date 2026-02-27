@@ -50,7 +50,7 @@ LEFT JOIN plant_category cate ON cate.id = p.category_id
 LEFT JOIN plant_sub_category sub ON sub.id = p.sub_category_id
 LEFT JOIN nursery_profile n ON n.id = p.nursery_id
 LEFT JOIN maintenance_type m ON m.id = p.maintenance_type_id
-LEFT JOIN cart c on c.fkproducts = p.id
+LEFT JOIN user_cart c on c.fkproducts = p.id
 
 LEFT JOIN (
     SELECT 
