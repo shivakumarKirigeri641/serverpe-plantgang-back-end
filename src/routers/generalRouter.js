@@ -185,6 +185,7 @@ generalRouter.post("/plantgangs/user/remove-from-cart", async (req, res) => {
         req.body.product_id,
         ipAddress,
         user_agent,
+        req.body.is_full_product ? req.body.is_full_product : false,
       );
     }
     return res

@@ -1,7 +1,12 @@
 const { connectDB } = require("../database/connectDB");
 const getCart = require("./getCart");
 const pool = connectDB();
-const removeFromCart = async (product_id, ipAddress, user_agent) => {
+const removeFromCart = async (
+  product_id,
+  ipAddress,
+  user_agent,
+  is_full_product = false,
+) => {
   try {
     let result_updated_product_in_cart = [];
     //first check product_id is valid or not
@@ -29,7 +34,10 @@ const removeFromCart = async (product_id, ipAddress, user_agent) => {
       };
     }
     //now remove
-    if (1 === result_cart_details.rows[0].quantity) {
+    if (
+      1 === result_cart_details.rows[0].quantity ||
+      true === is_full_product
+    ) {
       await pool.query(
         `delete from cart where fkproducts=$1 and ip_address=$2 and user_agent=$3`,
         [product_id, ipAddress, user_agent],
